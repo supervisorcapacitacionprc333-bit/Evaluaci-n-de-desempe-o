@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación de Desempeño - Analistas de Calidad y Capacitación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .rating-scale { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+        .rating-option { min-width: 120px; height: 60px; border-radius: 8px; border: 2px solid #01053c; background-color: #01053c; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; padding: 8px; }
+        .rating-option:hover { border-color: #1e3a8a; background-color: #1e3a8a; }
+        .rating-option.selected { border-color: #3b82f6; background-color: #3b82f6; color: white; }
+        .section-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .bronze-gradient { background: linear-gradient(135deg, #cd7f32 0%, #b8860b 50%, #8b4513 100%); }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <!-- Login View (Initial View) -->
+    <div id="loginView" class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Login Card -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <!-- Header -->
+                <div class="text-white p-8 text-center" style="background-color: #01053c;">
+                    <div class="flex justify-center mb-4">
+                        <!-- Minimalist Evaluation Clipboard Icon -->
+                        <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                    </div>
+                    <div class="text-3xl font-bold tracking-wider mb-2">PRC333</div>
+                    <div class="text-sm text-blue-100 tracking-wide mb-4">SISTEMA DE EVALUACIONES</div>
+                    <h1 class="text-2xl font-bold">Iniciar Sesión</h1>
+                    <p class="text-blue-100 mt-2">Acceso al Sistema de Gestión de Desempeño</p>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="p-8">
+                    <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-6">
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                                👤 Usuario
+                            </label>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                placeholder="Ingrese su usuario"
+                                autocomplete="username"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                                🔒 Contraseña
+                            </label>
+                            <div class="relative">
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    name="password"
+                                    required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors pr-12"
+                                    placeholder="Ingrese su contraseña"
+                                    autocomplete="current-password"
+                                >
+                                <button 
+                                    type="button" 
+                                    onclick="togglePassword()" 
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                >
+                                    <span id="eyeIcon">👁️</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="loginError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                            <span class="mr-2">❌</span>
+                            <span id="errorMessage">Usuario o contraseña incorrectos</span>
+                        </div>
+                        
+                        <button 
+                            type="submit" 
+                            class="w-full text-white py-3 px-4 rounded-lg font-medium transition-colors hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            style="background-color: #01053c;"
+                            id="loginButton"
+                        >
+                            <span id="loginButtonText">🚀 Acceder al Sistema</span>
+                            <span id="loginSpinner" class="hidden">
+                                <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                Verificando...
+                            </span>
+                        </button>
+                    </form>
+                    
+                    <!-- Demo Credentials Info -->
+                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h3 class="text-sm font-semibold text-blue-800 mb-2">📋 Credenciales de Acceso</h3>
+                        <div class="text-sm text-blue-700 space-y-1">
+                            <div><strong>Usuario:</strong> Admin</div>
+                            <div><strong>Contraseña:</strong> Prc12345</div>
+                        </div>
+                        <p class="text-xs text-blue-600 mt-2">Sistema de Evaluación de Desempeño Laboral</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="text-center text-gray-500 text-sm">
+                <p>© 2024 Sistema PRC333 - Evaluaciones de Desempeño</p>
+                <p class="mt-1">Gestión de Recursos Humanos</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard View (Hidden Initially) -->
+    <div id="dashboardView" class="max-w-7xl mx-auto px-4 hidden">
+        <!-- Dashboard Header -->
+        <div class="bg-white rounded-lg shadow-lg mb-8 overflow-hidden">
+            <div class="text-white p-6 flex items-center justify-between" style="background-color: #01053c;">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">📊 Dashboard de Evaluaciones</h1>
+                    <p class="text-blue-100">Sistema de Gestión de Desempeño Laboral - PRC333</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showEvaluationForm()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
+                        <span class="mr-2">➕</span>
+                        Nueva Evaluación
+                    </button>
+                    <button onclick="showLogin()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center text-sm">
+                        <span class="mr-1">🚪</span>
+                        Cerrar Sesión
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <!-- Minimalist Evaluation Clipboard Icon -->
+                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <!-- PRC333 Text -->
+                        <div class="text-white">
+                            <div class="text-2xl font-bold tracking-wider">PRC333</div>
+                            <div class="text-xs text-blue-100 tracking-wide">EVALUACIONES</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div>
+            <!-- Filters Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">🔍 Filtros de Análisis</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
+                        <input type="date" id="filterDateFrom" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="applyFilters()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Hasta</label>
+                        <input type="date" id="filterDateTo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="applyFilters()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                        <select id="filterCargo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" onchange="applyFilters()">
+                            <option value="">Todos los cargos</option>
+                            <option value="analista-calidad">Analista de Calidad y Capacitación</option>
+                            <option value="supervisor-operativo">Supervisor Operativo</option>
+                            <option value="supervisor-calidad">Supervisor de Calidad y Capacitación</option>
+                            <option value="coordinador-operativo">Coordinador Operativo</option>
+                            <option value="coordinador-calidad">Coordinador de Calidad y Capacitación</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Métrica</label>
+                        <select id="filterMetric" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" onchange="applyFilters()">
+                            <option value="total">Puntuación Total</option>
+                            <option value="skills">Habilidades</option>
+                            <option value="operations">Operatividad</option>
+                            <option value="badges">Insignias</option>
+                            <option value="points">Puntos de Logros</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button onclick="clearFilters()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm">
+                        Limpiar Filtros
+                    </button>
+                    <button onclick="exportDashboardData()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">
+                        📊 Exportar a Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Total Evaluaciones</h3>
+                            <p class="text-3xl font-bold" id="totalEvaluations">0</p>
+                        </div>
+                        <div class="text-4xl opacity-80">📋</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Promedio General</h3>
+                            <p class="text-3xl font-bold" id="averageScore">0%</p>
+                        </div>
+                        <div class="text-4xl opacity-80">📈</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Mejor Evaluado</h3>
+                            <p class="text-lg font-bold" id="topPerformer">-</p>
+                        </div>
+                        <div class="text-4xl opacity-80">🏆</div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Total Insignias</h3>
+                            <p class="text-3xl font-bold" id="totalBadges">0</p>
+                        </div>
+                        <div class="text-4xl opacity-80">🏅</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Ranking Chart -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🏆 Ranking por Métrica Seleccionada</h3>
+                    <div id="rankingChart" class="h-80 overflow-y-auto">
+                        <!-- Chart will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Performance Distribution -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Distribución de Desempeño</h3>
+                    <div id="performanceChart" class="h-80">
+                        <!-- Chart will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">📋 Base de Datos de Evaluaciones</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3">Empleado</th>
+                                <th class="px-4 py-3">Cargo</th>
+                                <th class="px-4 py-3">Fecha</th>
+                                <th class="px-4 py-3">Habilidades</th>
+                                <th class="px-4 py-3">Operatividad</th>
+                                <th class="px-4 py-3">Total</th>
+                                <th class="px-4 py-3">Insignias</th>
+                                <th class="px-4 py-3">Puntos</th>
+                                <th class="px-4 py-3">Nivel</th>
+                                <th class="px-4 py-3">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evaluationsTable">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluation Form View (Hidden Initially) -->
+    <div id="evaluationView" class="max-w-4xl mx-auto px-4 hidden">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-lg mb-8 overflow-hidden">
+            <div class="text-white p-6 flex items-center justify-between" style="background-color: #01053c;">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">Evaluación de Desempeño Laboral</h1>
+                    <p class="text-blue-100" id="dynamicSubtitle">Seleccione un cargo para evaluar</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showDashboard()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-md text-sm font-normal transition-colors flex items-center opacity-80 hover:opacity-100">
+                        <span class="mr-1">←</span>
+                        Volver al Dashboard
+                    </button>
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="flex items-center space-x-3">
+                            <!-- Minimalist Evaluation Clipboard Icon -->
+                            <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                            <!-- PRC333 Text -->
+                            <div class="text-white">
+                                <div class="text-2xl font-bold tracking-wider">PRC333</div>
+                                <div class="text-xs text-blue-100 tracking-wide">EVALUACIONES</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Employee Info -->
+            <div class="p-6 bg-gray-50 border-b">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Evaluado</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nombre completo">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" id="cargoSelect" onchange="updateSubtitle()">
+                            <option value="">Seleccionar tipo...</option>
+                            <option value="analista-calidad">Analista de Calidad y Capacitación</option>
+                            <option value="supervisor-operativo">Supervisor Operativo</option>
+                            <option value="supervisor-calidad">Supervisor de Calidad y Capacitación</option>
+                            <option value="coordinador-operativo">Coordinador Operativo</option>
+                            <option value="coordinador-calidad">Coordinador de Calidad y Capacitación</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Período de Evaluación</label>
+                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="evaluationPeriod">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Evaluador</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nombre del supervisor">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluation Sections -->
+        <div class="space-y-8">
+            <!-- Section 1: Habilidades -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden" id="skillsSection">
+                <div class="text-white p-4" style="background-color: #01053c;">
+                    <h2 class="text-xl font-semibold">1. Habilidades</h2>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.1. Adaptabilidad</h3>
+                        <p class="text-sm text-gray-600 mb-2">Se ajusta a las diversas situaciones del servicio. Toma en cuenta los cambios de procesos, herramientas e informaciones en tiempo real.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.2. Asertividad</h3>
+                        <p class="text-sm text-gray-600 mb-2">Se expresa de forma amable, franca, abierta y directa manteniendo su posición y negociando las acciones.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.3. Empatía</h3>
+                        <p class="text-sm text-gray-600 mb-2">Tienen en consideración la posición y situación de las otras personas.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.4. Disposición</h3>
+                        <p class="text-sm text-gray-600 mb-2">Demuestra ser atento ante las necesidades de otros, ofreciendo alternativas y generando cambios en el sistema.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.5. Comunicación</h3>
+                        <p class="text-sm text-gray-600 mb-2">Mantiene una buena comunicación a todo nivel. Reportando, escalando y puntualizando.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.6. Pensamiento Creativo</h3>
+                        <p class="text-sm text-gray-600 mb-2">Propone ideas, sugerencias y soluciones no convencionales ante las necesidades, requerimientos y situaciones que lo demanden.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.7. Proactividad</h3>
+                        <p class="text-sm text-gray-600 mb-2">Se adelanta ante los posibles eventos y situaciones, dedicando sus acciones de manera preventiva ante lo que pudiese suscitarse.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.8. Capacidad de Análisis</h3>
+                        <p class="text-sm text-gray-600 mb-2">Interpreta los eventos, casos, situaciones y circunstancias de manera acertada.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.9. Relaciones Interpersonales</h3>
+                        <p class="text-sm text-gray-600 mb-2">Mantiene un trato apropiado con sus compañeros de trabajo.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.11. Trabajo en Equipo</h3>
+                        <p class="text-sm text-gray-600 mb-2">Se enfoca de brindar el aporte necesario al equipo, para alcanzar los objetivos planteados.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.12. Inteligencia Emocional</h3>
+                        <p class="text-sm text-gray-600 mb-2">Maneja los gestos, expresiones y formulaciones en los momentos de presión emocional.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.13. Capacidad de Resolución de Conflictos</h3>
+                        <p class="text-sm text-gray-600 mb-2">Ante las eventualidades, avoca sus esfuerzos a resolver las situaciones.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.14. Proyección</h3>
+                        <p class="text-sm text-gray-600 mb-2">Se hace notar como una figura que predica por medio del ejemplo, cumpliendo y haciendo cumplir las normas.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">1.15. Manejo del Tiempo</h3>
+                        <p class="text-sm text-gray-600 mb-2">Organiza y distribuye sus actividades para el cumplimiento en los periodos establecidos, teniendo en cuenta su horario de trabajo.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Operatividad -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden" id="operationsSection">
+                <div class="text-white p-4" style="background-color: #01053c;">
+                    <h2 class="text-xl font-semibold">2. Operatividad</h2>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">2.1. Asistencia y Puntualidad</h3>
+                        <p class="text-sm text-gray-600 mb-2">Cumple con asistir todos los días en su horario laboral y respeta los tiempos establecidos.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">2.2. Orden y Limpieza</h3>
+                        <p class="text-sm text-gray-600 mb-2">Mantiene ordenado los archivos, espacios y materiales en todo momento. Asegura que su área de trabajo se encuentre limpia al inicio y al cierre de gestión.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">2.3. Cumplimiento de Normativas</h3>
+                        <p class="text-sm text-gray-600 mb-2">Cumple con los parámetros establecidos, dentro de las instalaciones y los hace cumplir de manera oportuna.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">2.4. Cumplimiento de Funciones</h3>
+                        <p class="text-sm text-gray-600 mb-2">Realiza de forma ordenada, completa y en los tiempos establecidos las tareas obligatorias para el cargo optado.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="evaluation-item">
+                        <h3 class="font-medium text-gray-800 mb-1">2.5. Cumplimiento de Tareas Asignadas</h3>
+                        <p class="text-sm text-gray-600 mb-2">Cumple con todas las asignaciones adicionales durante el período evaluado.</p>
+                        <div class="rating-scale mb-2">
+                            <div class="rating-option" data-value="1">
+                                <span class="text-xs text-center">No la posee</span>
+                            </div>
+                            <div class="rating-option" data-value="2">
+                                <span class="text-xs text-center">Posee con oportunidad de mejora</span>
+                            </div>
+                            <div class="rating-option" data-value="3">
+                                <span class="text-xs text-center">Posee la cualidad</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gamification Section -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="text-white p-4" style="background-color: #01053c;">
+                    <h2 class="text-xl font-semibold">3. Insignias y Reconocimientos</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Badges Section -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🏆 Insignias por Competencias Destacadas</h3>
+                            <div class="space-y-3">
+                                <div class="badge-item flex items-center p-3 bg-gray-50 rounded-lg border-2 border-transparent hover:border-yellow-300 transition-colors cursor-pointer" onclick="toggleBadge(this, 'comunicador')">
+                                    <div class="badge-icon w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-2xl">💬</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-800">Comunicador Excepcional</h4>
+                                        <p class="text-sm text-gray-600">Excelencia en comunicación y reporte</p>
+                                    </div>
+                                    <div class="badge-check hidden">
+                                        <span class="text-green-500 text-xl">✓</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="badge-item flex items-center p-3 bg-gray-50 rounded-lg border-2 border-transparent hover:border-yellow-300 transition-colors cursor-pointer" onclick="toggleBadge(this, 'lider')">
+                                    <div class="badge-icon w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-2xl">👑</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-800">Líder Natural</h4>
+                                        <p class="text-sm text-gray-600">Liderazgo y trabajo en equipo sobresaliente</p>
+                                    </div>
+                                    <div class="badge-check hidden">
+                                        <span class="text-green-500 text-xl">✓</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="badge-item flex items-center p-3 bg-gray-50 rounded-lg border-2 border-transparent hover:border-yellow-300 transition-colors cursor-pointer" onclick="toggleBadge(this, 'innovador')">
+                                    <div class="badge-icon w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-2xl">💡</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-800">Innovador Creativo</h4>
+                                        <p class="text-sm text-gray-600">Pensamiento creativo y soluciones innovadoras</p>
+                                    </div>
+                                    <div class="badge-check hidden">
+                                        <span class="text-green-500 text-xl">✓</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="badge-item flex items-center p-3 bg-gray-50 rounded-lg border-2 border-transparent hover:border-yellow-300 transition-colors cursor-pointer" onclick="toggleBadge(this, 'analista')">
+                                    <div class="badge-icon w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-2xl">🔍</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-800">Analista Experto</h4>
+                                        <p class="text-sm text-gray-600">Capacidad de análisis excepcional</p>
+                                    </div>
+                                    <div class="badge-check hidden">
+                                        <span class="text-green-500 text-xl">✓</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="badge-item flex items-center p-3 bg-gray-50 rounded-lg border-2 border-transparent hover:border-yellow-300 transition-colors cursor-pointer" onclick="toggleBadge(this, 'proactivo')">
+                                    <div class="badge-icon w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-2xl">⚡</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-800">Proactivo Ejemplar</h4>
+                                        <p class="text-sm text-gray-600">Iniciativa y anticipación sobresaliente</p>
+                                    </div>
+                                    <div class="badge-check hidden">
+                                        <span class="text-green-500 text-xl">✓</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="badge-item flex items-center p-3 bg-gray-50 rounded-lg border-2 border-transparent hover:border-yellow-300 transition-colors cursor-pointer" onclick="toggleBadge(this, 'confiable')">
+                                    <div class="badge-icon w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mr-3">
+                                        <span class="text-2xl">🎯</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-800">Confiabilidad Total</h4>
+                                        <p class="text-sm text-gray-600">Cumplimiento y puntualidad perfecta</p>
+                                    </div>
+                                    <div class="badge-check hidden">
+                                        <span class="text-green-500 text-xl">✓</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Achievement Points Section -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">🌟 Puntos por Logros Alcanzados</h3>
+                            <div class="space-y-4">
+                                <div class="achievement-level bronze-gradient text-white p-4 rounded-lg cursor-pointer" onclick="selectLevel(this, 'bronce', 100)">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-semibold">🥉 Nivel Bronce</h4>
+                                            <p class="text-sm opacity-90">Desempeño satisfactorio</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold">100</div>
+                                            <div class="text-xs">puntos</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="achievement-level bg-gradient-to-r from-gray-400 to-gray-600 text-white p-4 rounded-lg cursor-pointer" onclick="selectLevel(this, 'plata', 250)">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-semibold">🥈 Nivel Plata</h4>
+                                            <p class="text-sm opacity-90">Desempeño sobresaliente</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold">250</div>
+                                            <div class="text-xs">puntos</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="achievement-level bg-gradient-to-r from-yellow-400 to-yellow-600 text-white p-4 rounded-lg cursor-pointer" onclick="selectLevel(this, 'oro', 500)">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-semibold">🥇 Nivel Oro</h4>
+                                            <p class="text-sm opacity-90">Desempeño excepcional</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold">500</div>
+                                            <div class="text-xs">puntos</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="achievement-level bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-lg cursor-pointer" onclick="selectLevel(this, 'diamante', 1000)">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-semibold">💎 Nivel Diamante</h4>
+                                            <p class="text-sm opacity-90">Desempeño extraordinario</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold">1000</div>
+                                            <div class="text-xs">puntos</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Achievement Summary -->
+                            <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                                <h4 class="font-semibold text-gray-800 mb-2">Resumen de Logros</h4>
+                                <div class="grid grid-cols-2 gap-4 text-center">
+                                    <div>
+                                        <div class="text-2xl font-bold text-blue-600" id="badgeCount">0</div>
+                                        <div class="text-sm text-gray-600">Insignias</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-2xl font-bold text-purple-600" id="achievementPoints">0</div>
+                                        <div class="text-sm text-gray-600">Puntos</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="text-white p-4" style="background-color: #01053c;">
+                    <h2 class="text-xl font-semibold">4. Comentarios y Observaciones</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fortalezas identificadas</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24" placeholder="Describa las principales fortalezas del empleado..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Áreas de mejora</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24" placeholder="Identifique las áreas que requieren desarrollo..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Plan de desarrollo profesional</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24" placeholder="Proponga acciones específicas para el crecimiento profesional..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="text-white p-4" style="background-color: #01053c;">
+                    <h2 class="text-xl font-semibold">Resumen de Evaluación</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">Puntuación Total</h3>
+                            <div class="text-3xl font-bold text-blue-600" id="totalScore">0%</div>
+                            <div class="text-sm text-gray-500 mt-1" id="sectionBreakdown">Habilidades: 0% | Operatividad: 0%</div>
+                            <div class="text-sm text-gray-600 mt-2" id="performanceLevel">Calculando...</div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-semibold text-gray-800 mb-2">Recomendación</h3>
+                            <div class="text-lg font-medium" id="recommendation">Seleccione las calificaciones para ver la recomendación</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="generateReport()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                    🗄️ Generar Reporte
+                </button>
+                <button onclick="resetForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                    🧹 Limpiar Formulario
+                </button>
+                <button onclick="printEvaluation()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                    📄 Descargar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // Rating system functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dashboard on page load
+            loadDashboardData();
+            
+            const ratingOptions = document.querySelectorAll('.rating-option');
+            
+            ratingOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const parent = this.parentElement;
+                    const siblings = parent.querySelectorAll('.rating-option');
+                    
+                    // Remove selected class from all siblings
+                    siblings.forEach(sibling => sibling.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Update total score
+                    updateTotalScore();
+                });
+            });
+        });
+
+        function updateTotalScore() {
+            // Get all evaluation items in Skills section (first 14 items)
+            const skillsItems = document.querySelectorAll('#skillsSection .evaluation-item .rating-option.selected');
+            // Get all evaluation items in Operations section (last 5 items)
+            const operationsItems = document.querySelectorAll('#operationsSection .evaluation-item .rating-option.selected');
+            
+            let skillsScore = 0;
+            let operationsScore = 0;
+            
+            // Calculate Skills score with specific weightings
+            skillsItems.forEach(rating => {
+                const value = parseInt(rating.dataset.value);
+                if (value === 3) {
+                    skillsScore += 3.57; // Posee la cualidad
+                } else if (value === 2) {
+                    skillsScore += 1.79; // Posee con oportunidad de mejora
+                } else {
+                    skillsScore += 0; // No la posee
+                }
+            });
+            
+            // Calculate Operations score with specific weightings
+            operationsItems.forEach(rating => {
+                const value = parseInt(rating.dataset.value);
+                if (value === 3) {
+                    operationsScore += 10; // Posee la cualidad
+                } else if (value === 2) {
+                    operationsScore += 5; // Posee con oportunidad de mejora
+                } else {
+                    operationsScore += 0; // No la posee
+                }
+            });
+            
+            const totalPercentage = Math.round(skillsScore + operationsScore);
+            const maxSkillsScore = 14 * 3.57; // 14 skills items × 3.57%
+            const maxOperationsScore = 5 * 10; // 5 operations items × 10%
+            
+            document.getElementById('totalScore').textContent = `${totalPercentage}%`;
+            document.getElementById('sectionBreakdown').textContent = `Habilidades: ${skillsScore.toFixed(1)}% | Operatividad: ${operationsScore.toFixed(1)}%`;
+            
+            // Update performance level
+            let performanceLevel = '';
+            let recommendation = '';
+            
+            if (totalPercentage >= 90) {
+                performanceLevel = 'Desempeño Sobresaliente';
+                recommendation = 'Considerar para promoción o roles de mayor responsabilidad';
+                document.getElementById('performanceLevel').className = 'text-sm text-green-600 mt-2 font-medium';
+                document.getElementById('recommendation').className = 'text-lg font-medium text-green-600';
+            } else if (totalPercentage >= 80) {
+                performanceLevel = 'Desempeño Bueno';
+                recommendation = 'Mantener el buen trabajo y buscar oportunidades de crecimiento';
+                document.getElementById('performanceLevel').className = 'text-sm text-blue-600 mt-2 font-medium';
+                document.getElementById('recommendation').className = 'text-lg font-medium text-blue-600';
+            } else if (totalPercentage >= 70) {
+                performanceLevel = 'Desempeño Regular';
+                recommendation = 'Enfocarse en áreas de mejora específicas';
+                document.getElementById('performanceLevel').className = 'text-sm text-yellow-600 mt-2 font-medium';
+                document.getElementById('recommendation').className = 'text-lg font-medium text-yellow-600';
+            } else {
+                performanceLevel = 'Desempeño Deficiente';
+                recommendation = 'Requiere intervención inmediata y plan de mejora intensivo';
+                document.getElementById('performanceLevel').className = 'text-sm text-red-600 mt-2 font-medium';
+                document.getElementById('recommendation').className = 'text-lg font-medium text-red-600';
+            }
+            
+            document.getElementById('performanceLevel').textContent = performanceLevel;
+            document.getElementById('recommendation').textContent = recommendation;
+        }
+
+        function generateReport() {
+            const employeeName = document.querySelector('input[placeholder="Nombre completo"]').value;
+            const evaluationPeriod = document.getElementById('evaluationPeriod').value;
+            const evaluator = document.querySelector('input[placeholder="Nombre del supervisor"]').value;
+            const cargo = document.getElementById('cargoSelect').value;
+            
+            if (!employeeName || !evaluationPeriod || !evaluator || !cargo) {
+                alert('Por favor complete toda la información básica del empleado antes de generar el reporte.');
+                return;
+            }
+            
+            const selectedRatings = document.querySelectorAll('.rating-option.selected');
+            if (selectedRatings.length === 0) {
+                alert('Por favor complete al menos una evaluación antes de generar el reporte.');
+                return;
+            }
+            
+            // Collect all evaluation data
+            const evaluationData = {
+                employeeName: employeeName,
+                evaluationPeriod: evaluationPeriod,
+                evaluator: evaluator,
+                cargo: cargo,
+                timestamp: new Date().toISOString(),
+                skills: {},
+                operations: {},
+                badges: Array.from(selectedBadges),
+                achievementLevel: selectedLevel,
+                achievementPoints: selectedPoints,
+                comments: {
+                    strengths: document.querySelector('textarea[placeholder*="fortalezas"]').value,
+                    improvements: document.querySelector('textarea[placeholder*="mejora"]').value,
+                    developmentPlan: document.querySelector('textarea[placeholder*="crecimiento"]').value
+                },
+                totalScore: document.getElementById('totalScore').textContent,
+                performanceLevel: document.getElementById('performanceLevel').textContent
+            };
+            
+            // Collect skills ratings
+            const skillsSection = document.getElementById('skillsSection');
+            const skillsItems = skillsSection.querySelectorAll('.evaluation-item');
+            skillsItems.forEach((item, index) => {
+                const title = item.querySelector('h3').textContent;
+                const selectedRating = item.querySelector('.rating-option.selected');
+                if (selectedRating) {
+                    evaluationData.skills[title] = parseInt(selectedRating.dataset.value);
+                }
+            });
+            
+            // Collect operations ratings
+            const operationsSection = document.getElementById('operationsSection');
+            const operationsItems = operationsSection.querySelectorAll('.evaluation-item');
+            operationsItems.forEach((item, index) => {
+                const title = item.querySelector('h3').textContent;
+                const selectedRating = item.querySelector('.rating-option.selected');
+                if (selectedRating) {
+                    evaluationData.operations[title] = parseInt(selectedRating.dataset.value);
+                }
+            });
+            
+            // Save to localStorage (simulating database) and clear form
+            saveToDatabase(evaluationData, true);
+        }
+        
+        function saveToDatabase(data, shouldClearForm = false) {
+            try {
+                // Get existing evaluations from localStorage
+                let evaluations = JSON.parse(localStorage.getItem('performanceEvaluations') || '[]');
+                
+                // Add new evaluation with unique ID
+                data.id = Date.now().toString();
+                evaluations.push(data);
+                
+                // Save back to localStorage
+                localStorage.setItem('performanceEvaluations', JSON.stringify(evaluations));
+                
+                // Show success message with option to go to dashboard
+                const successDiv = document.createElement('div');
+                successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                successDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <span class="mr-2">✅</span>
+                            <div>
+                                <div class="font-semibold">Evaluación Guardada en Base de Datos</div>
+                                <div class="text-sm">ID: ${data.id} • ${data.employeeName}</div>
+                            </div>
+                        </div>
+                        <button onclick="showDashboard(); this.parentElement.parentElement.remove();" class="ml-4 bg-green-700 hover:bg-green-800 px-3 py-1 rounded text-sm">
+                            Ver Dashboard
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(successDiv);
+                
+                // Clear form if requested (when generating report)
+                if (shouldClearForm) {
+                    setTimeout(() => {
+                        clearFormAfterSave();
+                    }, 1000);
+                }
+                
+                // Remove success message after 8 seconds
+                setTimeout(() => {
+                    if (successDiv.parentElement) {
+                        successDiv.remove();
+                    }
+                }, 8000);
+                
+                console.log('Evaluación guardada en base de datos:', data);
+                
+            } catch (error) {
+                alert('Error al guardar la evaluación en la base de datos: ' + error.message);
+                console.error('Database save error:', error);
+            }
+        }
+
+        function clearFormAfterSave() {
+            // Clear all input fields
+            document.querySelectorAll('input, textarea').forEach(field => {
+                field.value = '';
+            });
+            
+            // Clear cargo selection
+            document.getElementById('cargoSelect').value = '';
+            updateSubtitle();
+            
+            // Clear all ratings
+            document.querySelectorAll('.rating-option.selected').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Reset score display
+            document.getElementById('totalScore').textContent = '0%';
+            document.getElementById('sectionBreakdown').textContent = 'Habilidades: 0% | Operatividad: 0%';
+            document.getElementById('performanceLevel').textContent = 'Calculando...';
+            document.getElementById('performanceLevel').className = 'text-sm text-gray-600 mt-2';
+            document.getElementById('recommendation').textContent = 'Seleccione las calificaciones para ver la recomendación';
+            document.getElementById('recommendation').className = 'text-lg font-medium';
+            
+            // Reset gamification elements
+            selectedBadges.clear();
+            selectedLevel = null;
+            selectedPoints = 0;
+            
+            // Reset badge selections
+            document.querySelectorAll('.badge-item').forEach(badge => {
+                badge.classList.remove('border-yellow-400', 'bg-yellow-50');
+                badge.classList.add('border-transparent', 'bg-gray-50');
+                badge.querySelector('.badge-check').classList.add('hidden');
+            });
+            
+            // Reset level selections
+            document.querySelectorAll('.achievement-level').forEach(level => {
+                level.classList.remove('ring-4', 'ring-white', 'ring-opacity-50', 'transform', 'scale-105');
+            });
+            
+            // Reset gamification summary
+            document.getElementById('badgeCount').textContent = '0';
+            document.getElementById('achievementPoints').textContent = '0';
+            
+            // Show form cleared message
+            const clearedDiv = document.createElement('div');
+            clearedDiv.className = 'fixed top-20 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            clearedDiv.innerHTML = `
+                <div class="flex items-center">
+                    <span class="mr-2">🧹</span>
+                    <div>
+                        <div class="font-semibold">Formulario Limpiado</div>
+                        <div class="text-sm">Listo para nueva evaluación</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(clearedDiv);
+            
+            setTimeout(() => {
+                if (clearedDiv.parentElement) {
+                    clearedDiv.remove();
+                }
+            }, 3000);
+        }
+
+        function resetForm() {
+            if (confirm('¿Está seguro de que desea limpiar todo el formulario? Esta acción no se puede deshacer.')) {
+                // Clear all input fields
+                document.querySelectorAll('input, textarea').forEach(field => {
+                    field.value = '';
+                });
+                
+                // Clear all ratings
+                document.querySelectorAll('.rating-option.selected').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Reset score display
+                document.getElementById('totalScore').textContent = '0%';
+                document.getElementById('sectionBreakdown').textContent = 'Habilidades: 0% | Operatividad: 0%';
+                document.getElementById('performanceLevel').textContent = 'Calculando...';
+                document.getElementById('performanceLevel').className = 'text-sm text-gray-600 mt-2';
+                document.getElementById('recommendation').textContent = 'Seleccione las calificaciones para ver la recomendación';
+                document.getElementById('recommendation').className = 'text-lg font-medium';
+                
+                // Reset gamification elements
+                selectedBadges.clear();
+                selectedLevel = null;
+                selectedPoints = 0;
+                
+                // Reset badge selections
+                document.querySelectorAll('.badge-item').forEach(badge => {
+                    badge.classList.remove('border-yellow-400', 'bg-yellow-50');
+                    badge.classList.add('border-transparent', 'bg-gray-50');
+                    badge.querySelector('.badge-check').classList.add('hidden');
+                });
+                
+                // Reset level selections
+                document.querySelectorAll('.achievement-level').forEach(level => {
+                    level.classList.remove('ring-4', 'ring-white', 'ring-opacity-50', 'transform', 'scale-105');
+                });
+                
+                // Reset gamification summary
+                document.getElementById('badgeCount').textContent = '0';
+                document.getElementById('achievementPoints').textContent = '0';
+                
+                alert('Formulario limpiado exitosamente.');
+            }
+        }
+
+        function printEvaluation() {
+            const employeeName = document.querySelector('input[placeholder="Nombre completo"]').value;
+            const evaluationPeriod = document.getElementById('evaluationPeriod').value;
+            const evaluator = document.querySelector('input[placeholder="Nombre del supervisor"]').value;
+            const cargo = document.getElementById('cargoSelect').value;
+            
+            if (!employeeName || !evaluationPeriod || !evaluator || !cargo) {
+                alert('Por favor complete toda la información básica del empleado antes de exportar a PDF.');
+                return;
+            }
+            
+            const selectedRatings = document.querySelectorAll('.rating-option.selected');
+            if (selectedRatings.length === 0) {
+                alert('Por favor complete al menos una evaluación antes de exportar a PDF.');
+                return;
+            }
+            
+            // Show loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'fixed top-4 right-4 bg-purple-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            loadingDiv.innerHTML = `
+                <div class="flex items-center">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <span>Generando PDF...</span>
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+            
+            // Generate visual PDF without clearing data
+            setTimeout(() => {
+                generateVisualPDF();
+                loadingDiv.remove();
+            }, 1000);
+        }
+        
+        function generateVisualPDF() {
+            try {
+                const employeeName = document.querySelector('input[placeholder="Nombre completo"]').value;
+                
+                // Hide action buttons temporarily for clean capture
+                const actionButtons = document.querySelector('.flex.flex-col.sm\\:flex-row.gap-4.justify-center');
+                actionButtons.style.display = 'none';
+                
+                // Create a container for the entire evaluation
+                const evaluationContainer = document.querySelector('.max-w-4xl.mx-auto.px-4');
+                
+                // Use html2canvas to capture the visual content
+                html2canvas(evaluationContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#f9fafb',
+                    width: evaluationContainer.scrollWidth,
+                    height: evaluationContainer.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0
+                }).then(canvas => {
+                    // Show action buttons again
+                    actionButtons.style.display = 'flex';
+                    
+                    // Initialize jsPDF
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    
+                    // Calculate dimensions
+                    const imgWidth = 210; // A4 width in mm
+                    const pageHeight = 295; // A4 height in mm
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+                    
+                    // Add first page
+                    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    
+                    // Add additional pages if needed
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    // Generate filename
+                    const fileName = `Evaluacion_Visual_${employeeName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    
+                    // Save the PDF
+                    pdf.save(fileName);
+                    
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'fixed top-4 right-4 bg-purple-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    successDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2">📄</span>
+                            <div>
+                                <div class="font-semibold">PDF Descargado Exitosamente</div>
+                                <div class="text-sm">${fileName}</div>
+                                <div class="text-xs mt-1">Los datos permanecen en el formulario</div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+                    
+                    setTimeout(() => {
+                        successDiv.remove();
+                    }, 5000);
+                    
+                }).catch(error => {
+                    // Show action buttons again in case of error
+                    actionButtons.style.display = 'flex';
+                    console.error('Error capturing evaluation:', error);
+                    alert('Error al capturar la evaluación visual. Por favor, intente nuevamente.');
+                });
+                
+            } catch (error) {
+                console.error('Error generating visual PDF:', error);
+                alert('Error al generar el PDF visual. Por favor, intente nuevamente.');
+            }
+        }
+
+        // Update subtitle based on selected position
+        function updateSubtitle() {
+            const cargoSelect = document.getElementById('cargoSelect');
+            const subtitle = document.getElementById('dynamicSubtitle');
+            
+            const cargoTexts = {
+                'analista-calidad': 'Analista de Calidad y Capacitación',
+                'supervisor-operativo': 'Supervisor Operativo',
+                'supervisor-calidad': 'Supervisor de Calidad y Capacitación',
+                'coordinador-operativo': 'Coordinador Operativo',
+                'coordinador-calidad': 'Coordinador de Calidad y Capacitación'
+            };
+            
+            if (cargoSelect.value && cargoTexts[cargoSelect.value]) {
+                subtitle.textContent = cargoTexts[cargoSelect.value];
+            } else {
+                subtitle.textContent = 'Seleccione un cargo para evaluar';
+            }
+        }
+
+        // Gamification functions
+        let selectedBadges = new Set();
+        let selectedLevel = null;
+        let selectedPoints = 0;
+
+        function toggleBadge(element, badgeId) {
+            const checkElement = element.querySelector('.badge-check');
+            
+            if (selectedBadges.has(badgeId)) {
+                // Remove badge
+                selectedBadges.delete(badgeId);
+                checkElement.classList.add('hidden');
+                element.classList.remove('border-yellow-400', 'bg-yellow-50');
+                element.classList.add('border-transparent', 'bg-gray-50');
+            } else {
+                // Add badge
+                selectedBadges.add(badgeId);
+                checkElement.classList.remove('hidden');
+                element.classList.remove('border-transparent', 'bg-gray-50');
+                element.classList.add('border-yellow-400', 'bg-yellow-50');
+            }
+            
+            updateGamificationSummary();
+        }
+
+        function selectLevel(element, levelId, points) {
+            // Remove selection from all levels
+            document.querySelectorAll('.achievement-level').forEach(level => {
+                level.classList.remove('ring-4', 'ring-white', 'ring-opacity-50', 'transform', 'scale-105');
+            });
+            
+            // Add selection to clicked level
+            element.classList.add('ring-4', 'ring-white', 'ring-opacity-50', 'transform', 'scale-105');
+            
+            selectedLevel = levelId;
+            selectedPoints = points;
+            
+            updateGamificationSummary();
+        }
+
+        function updateGamificationSummary() {
+            document.getElementById('badgeCount').textContent = selectedBadges.size;
+            document.getElementById('achievementPoints').textContent = selectedPoints;
+        }
+
+        // Login functionality
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('loginButton');
+            const loginButtonText = document.getElementById('loginButtonText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const loginError = document.getElementById('loginError');
+            
+            // Hide any previous error
+            loginError.classList.add('hidden');
+            
+            // Show loading state
+            loginButtonText.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
+            loginButton.disabled = true;
+            
+            // Simulate authentication delay
+            setTimeout(() => {
+                // Check credentials
+                if (username === 'Admin' && password === 'Prc12345') {
+                    // Successful login
+                    showSuccessLogin();
+                    setTimeout(() => {
+                        showDashboard();
+                    }, 1500);
+                } else {
+                    // Failed login
+                    showLoginError();
+                }
+                
+                // Reset button state
+                loginButtonText.classList.remove('hidden');
+                loginSpinner.classList.add('hidden');
+                loginButton.disabled = false;
+            }, 1000);
+        }
+        
+        function showSuccessLogin() {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            successDiv.innerHTML = `
+                <div class="flex items-center">
+                    <span class="mr-2">✅</span>
+                    <div>
+                        <div class="font-semibold">Acceso Autorizado</div>
+                        <div class="text-sm">Bienvenido al Sistema PRC333</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                if (successDiv.parentElement) {
+                    successDiv.remove();
+                }
+            }, 3000);
+        }
+        
+        function showLoginError() {
+            const loginError = document.getElementById('loginError');
+            loginError.classList.remove('hidden');
+            
+            // Add shake animation
+            const loginForm = document.getElementById('loginForm');
+            loginForm.style.animation = 'shake 0.5s ease-in-out';
+            
+            setTimeout(() => {
+                loginForm.style.animation = '';
+            }, 500);
+        }
+        
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.textContent = '👁️';
+            }
+        }
+
+        // Navigation functions
+        function showDashboard() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            document.getElementById('evaluationView').classList.add('hidden');
+            loadDashboardData();
+        }
+
+        function showEvaluationForm() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('evaluationView').classList.remove('hidden');
+        }
+        
+        function showLogin() {
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('evaluationView').classList.add('hidden');
+            
+            // Clear login form
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        // Dashboard functionality
+        let filteredEvaluations = [];
+        let allEvaluations = [];
+
+        function loadDashboardData() {
+            try {
+                // Load evaluations from localStorage
+                allEvaluations = JSON.parse(localStorage.getItem('performanceEvaluations') || '[]');
+                
+                // Add sample data if no evaluations exist
+                if (allEvaluations.length === 0) {
+                    generateSampleData();
+                    allEvaluations = JSON.parse(localStorage.getItem('performanceEvaluations') || '[]');
+                }
+                
+                filteredEvaluations = [...allEvaluations];
+                updateDashboard();
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                alert('Error al cargar los datos del dashboard');
+            }
+        }
+
+        function generateSampleData() {
+            const sampleEvaluations = [
+                {
+                    id: '1701234567890',
+                    employeeName: 'María González',
+                    evaluationPeriod: '2024-01-15',
+                    evaluator: 'Carlos Rodríguez',
+                    timestamp: '2024-01-15T10:30:00.000Z',
+                    skills: { '1.1. Adaptabilidad': 3, '1.2. Asertividad': 3, '1.3. Empatía': 2, '1.4. Disposición': 3, '1.5. Comunicación': 3 },
+                    operations: { '2.1. Asistencia y Puntualidad': 3, '2.2. Orden y Limpieza': 3, '2.3. Cumplimiento de Normativas': 2 },
+                    badges: ['comunicador', 'lider'],
+                    achievementLevel: 'oro',
+                    achievementPoints: 500,
+                    totalScore: '85%',
+                    performanceLevel: 'Desempeño Bueno',
+                    cargo: 'analista-calidad'
+                },
+                {
+                    id: '1701234567891',
+                    employeeName: 'Juan Pérez',
+                    evaluationPeriod: '2024-01-20',
+                    evaluator: 'Ana López',
+                    timestamp: '2024-01-20T14:15:00.000Z',
+                    skills: { '1.1. Adaptabilidad': 2, '1.2. Asertividad': 2, '1.3. Empatía': 3, '1.4. Disposición': 2, '1.5. Comunicación': 2 },
+                    operations: { '2.1. Asistencia y Puntualidad': 3, '2.2. Orden y Limpieza': 2, '2.3. Cumplimiento de Normativas': 3 },
+                    badges: ['analista'],
+                    achievementLevel: 'plata',
+                    achievementPoints: 250,
+                    totalScore: '72%',
+                    performanceLevel: 'Desempeño Regular',
+                    cargo: 'supervisor-operativo'
+                },
+                {
+                    id: '1701234567892',
+                    employeeName: 'Laura Martínez',
+                    evaluationPeriod: '2024-02-05',
+                    evaluator: 'Roberto Silva',
+                    timestamp: '2024-02-05T09:45:00.000Z',
+                    skills: { '1.1. Adaptabilidad': 3, '1.2. Asertividad': 3, '1.3. Empatía': 3, '1.4. Disposición': 3, '1.5. Comunicación': 3 },
+                    operations: { '2.1. Asistencia y Puntualidad': 3, '2.2. Orden y Limpieza': 3, '2.3. Cumplimiento de Normativas': 3 },
+                    badges: ['comunicador', 'lider', 'innovador', 'proactivo'],
+                    achievementLevel: 'diamante',
+                    achievementPoints: 1000,
+                    totalScore: '95%',
+                    performanceLevel: 'Desempeño Sobresaliente',
+                    cargo: 'coordinador-calidad'
+                }
+            ];
+            
+            localStorage.setItem('performanceEvaluations', JSON.stringify(sampleEvaluations));
+        }
+
+        function applyFilters() {
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+            const cargo = document.getElementById('filterCargo').value;
+            
+            filteredEvaluations = allEvaluations.filter(evaluation => {
+                let passesFilter = true;
+                
+                // Date filter
+                if (dateFrom) {
+                    const evalDate = new Date(evaluation.evaluationPeriod);
+                    const fromDate = new Date(dateFrom);
+                    if (evalDate < fromDate) passesFilter = false;
+                }
+                
+                if (dateTo) {
+                    const evalDate = new Date(evaluation.evaluationPeriod);
+                    const toDate = new Date(dateTo);
+                    if (evalDate > toDate) passesFilter = false;
+                }
+                
+                // Cargo filter
+                if (cargo && evaluation.cargo !== cargo) {
+                    passesFilter = false;
+                }
+                
+                return passesFilter;
+            });
+            
+            updateDashboard();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            document.getElementById('filterCargo').value = '';
+            document.getElementById('filterMetric').value = 'total';
+            
+            filteredEvaluations = [...allEvaluations];
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            updateStatistics();
+            updateRankingChart();
+            updatePerformanceChart();
+            updateEvaluationsTable();
+        }
+
+        function updateStatistics() {
+            const totalEvals = filteredEvaluations.length;
+            document.getElementById('totalEvaluations').textContent = totalEvals;
+            
+            if (totalEvals === 0) {
+                document.getElementById('averageScore').textContent = '0%';
+                document.getElementById('topPerformer').textContent = '-';
+                document.getElementById('totalBadges').textContent = '0';
+                return;
+            }
+            
+            // Calculate average score
+            const totalScore = filteredEvaluations.reduce((sum, eval) => {
+                return sum + parseInt(eval.totalScore.replace('%', ''));
+            }, 0);
+            const averageScore = Math.round(totalScore / totalEvals);
+            document.getElementById('averageScore').textContent = `${averageScore}%`;
+            
+            // Find top performer
+            const topPerformer = filteredEvaluations.reduce((top, current) => {
+                const currentScore = parseInt(current.totalScore.replace('%', ''));
+                const topScore = parseInt(top.totalScore.replace('%', ''));
+                return currentScore > topScore ? current : top;
+            });
+            document.getElementById('topPerformer').textContent = topPerformer.employeeName;
+            
+            // Calculate total badges
+            const totalBadges = filteredEvaluations.reduce((sum, eval) => {
+                return sum + (eval.badges ? eval.badges.length : 0);
+            }, 0);
+            document.getElementById('totalBadges').textContent = totalBadges;
+        }
+
+        function updateRankingChart() {
+            const metric = document.getElementById('filterMetric').value;
+            const chartContainer = document.getElementById('rankingChart');
+            
+            // Sort evaluations by selected metric
+            const sortedEvaluations = [...filteredEvaluations].sort((a, b) => {
+                let valueA, valueB;
+                
+                switch (metric) {
+                    case 'skills':
+                        valueA = calculateSkillsScore(a);
+                        valueB = calculateSkillsScore(b);
+                        break;
+                    case 'operations':
+                        valueA = calculateOperationsScore(a);
+                        valueB = calculateOperationsScore(b);
+                        break;
+                    case 'badges':
+                        valueA = a.badges ? a.badges.length : 0;
+                        valueB = b.badges ? b.badges.length : 0;
+                        break;
+                    case 'points':
+                        valueA = a.achievementPoints || 0;
+                        valueB = b.achievementPoints || 0;
+                        break;
+                    default: // total
+                        valueA = parseInt(a.totalScore.replace('%', ''));
+                        valueB = parseInt(b.totalScore.replace('%', ''));
+                }
+                
+                return valueB - valueA;
+            });
+            
+            // Generate ranking HTML
+            let rankingHTML = '';
+            sortedEvaluations.slice(0, 10).forEach((evaluation, index) => {
+                let value, unit;
+                
+                switch (metric) {
+                    case 'skills':
+                        value = calculateSkillsScore(evaluation).toFixed(1);
+                        unit = '%';
+                        break;
+                    case 'operations':
+                        value = calculateOperationsScore(evaluation).toFixed(1);
+                        unit = '%';
+                        break;
+                    case 'badges':
+                        value = evaluation.badges ? evaluation.badges.length : 0;
+                        unit = ' insignias';
+                        break;
+                    case 'points':
+                        value = evaluation.achievementPoints || 0;
+                        unit = ' pts';
+                        break;
+                    default:
+                        value = evaluation.totalScore.replace('%', '');
+                        unit = '%';
+                }
+                
+                const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                const cargoNames = {
+                    'analista-calidad': 'Analista de Calidad',
+                    'supervisor-operativo': 'Supervisor Operativo',
+                    'supervisor-calidad': 'Supervisor de Calidad',
+                    'coordinador-operativo': 'Coordinador Operativo',
+                    'coordinador-calidad': 'Coordinador de Calidad'
+                };
+                
+                rankingHTML += `
+                    <div class="flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50">
+                        <div class="flex items-center">
+                            <span class="text-lg font-bold mr-3 w-8">${medalEmoji}</span>
+                            <div>
+                                <div class="font-medium text-gray-800">${evaluation.employeeName}</div>
+                                <div class="text-sm text-gray-500">${cargoNames[evaluation.cargo] || evaluation.cargo}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-lg text-blue-600">${value}${unit}</div>
+                            <div class="text-xs text-gray-500">${evaluation.evaluationPeriod}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            chartContainer.innerHTML = rankingHTML || '<p class="text-gray-500 text-center py-8">No hay datos para mostrar</p>';
+        }
+
+        function updatePerformanceChart() {
+            const chartContainer = document.getElementById('performanceChart');
+            
+            // Count performance levels
+            const performanceCounts = {
+                'Desempeño Sobresaliente': 0,
+                'Desempeño Bueno': 0,
+                'Desempeño Regular': 0,
+                'Desempeño Deficiente': 0
+            };
+            
+            filteredEvaluations.forEach(evaluation => {
+                if (performanceCounts.hasOwnProperty(evaluation.performanceLevel)) {
+                    performanceCounts[evaluation.performanceLevel]++;
+                }
+            });
+            
+            const total = filteredEvaluations.length;
+            
+            let chartHTML = '';
+            const colors = {
+                'Desempeño Sobresaliente': 'bg-green-500',
+                'Desempeño Bueno': 'bg-blue-500',
+                'Desempeño Regular': 'bg-yellow-500',
+                'Desempeño Deficiente': 'bg-red-500'
+            };
+            
+            Object.entries(performanceCounts).forEach(([level, count]) => {
+                const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                chartHTML += `
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">${level}</span>
+                            <span class="text-sm text-gray-500">${count} (${percentage}%)</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="${colors[level]} h-3 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            chartContainer.innerHTML = chartHTML || '<p class="text-gray-500 text-center py-8">No hay datos para mostrar</p>';
+        }
+
+        function updateEvaluationsTable() {
+            const tableBody = document.getElementById('evaluationsTable');
+            
+            let tableHTML = '';
+            filteredEvaluations.forEach(evaluation => {
+                const cargoNames = {
+                    'analista-calidad': 'Analista de Calidad',
+                    'supervisor-operativo': 'Supervisor Operativo',
+                    'supervisor-calidad': 'Supervisor de Calidad',
+                    'coordinador-operativo': 'Coordinador Operativo',
+                    'coordinador-calidad': 'Coordinador de Calidad'
+                };
+                
+                const skillsScore = calculateSkillsScore(evaluation);
+                const operationsScore = calculateOperationsScore(evaluation);
+                const badgeCount = evaluation.badges ? evaluation.badges.length : 0;
+                const achievementPoints = evaluation.achievementPoints || 0;
+                
+                tableHTML += `
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="px-4 py-3 font-medium text-gray-900">${evaluation.employeeName}</td>
+                        <td class="px-4 py-3 text-gray-700">${cargoNames[evaluation.cargo] || evaluation.cargo}</td>
+                        <td class="px-4 py-3 text-gray-700">${evaluation.evaluationPeriod}</td>
+                        <td class="px-4 py-3 text-gray-700">${skillsScore.toFixed(1)}%</td>
+                        <td class="px-4 py-3 text-gray-700">${operationsScore.toFixed(1)}%</td>
+                        <td class="px-4 py-3 font-semibold text-blue-600">${evaluation.totalScore}</td>
+                        <td class="px-4 py-3 text-gray-700">${badgeCount}</td>
+                        <td class="px-4 py-3 text-gray-700">${achievementPoints}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs rounded-full ${getPerformanceBadgeClass(evaluation.performanceLevel)}">
+                                ${evaluation.performanceLevel}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <button onclick="viewEvaluationDetails('${evaluation.id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Ver Detalles
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = tableHTML || '<tr><td colspan="10" class="px-4 py-8 text-center text-gray-500">No hay evaluaciones para mostrar</td></tr>';
+        }
+
+        function calculateSkillsScore(evaluation) {
+            if (!evaluation.skills) return 0;
+            
+            let totalScore = 0;
+            let itemCount = 0;
+            
+            Object.values(evaluation.skills).forEach(value => {
+                if (value === 3) {
+                    totalScore += 3.57;
+                } else if (value === 2) {
+                    totalScore += 1.79;
+                }
+                itemCount++;
+            });
+            
+            return totalScore;
+        }
+
+        function calculateOperationsScore(evaluation) {
+            if (!evaluation.operations) return 0;
+            
+            let totalScore = 0;
+            let itemCount = 0;
+            
+            Object.values(evaluation.operations).forEach(value => {
+                if (value === 3) {
+                    totalScore += 10;
+                } else if (value === 2) {
+                    totalScore += 5;
+                }
+                itemCount++;
+            });
+            
+            return totalScore;
+        }
+
+        function getPerformanceBadgeClass(level) {
+            switch (level) {
+                case 'Desempeño Sobresaliente':
+                    return 'bg-green-100 text-green-800';
+                case 'Desempeño Bueno':
+                    return 'bg-blue-100 text-blue-800';
+                case 'Desempeño Regular':
+                    return 'bg-yellow-100 text-yellow-800';
+                case 'Desempeño Deficiente':
+                    return 'bg-red-100 text-red-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function viewEvaluationDetails(evaluationId) {
+            const evaluation = allEvaluations.find(eval => eval.id === evaluationId);
+            if (!evaluation) return;
+            
+            alert(`Detalles de la evaluación:\n\nEmpleado: ${evaluation.employeeName}\nEvaluador: ${evaluation.evaluator}\nFecha: ${evaluation.evaluationPeriod}\nPuntuación Total: ${evaluation.totalScore}\nNivel: ${evaluation.performanceLevel}\n\nInsignias obtenidas: ${evaluation.badges ? evaluation.badges.length : 0}\nPuntos de logros: ${evaluation.achievementPoints || 0}`);
+        }
+
+        function exportDashboardData() {
+            try {
+                if (filteredEvaluations.length === 0) {
+                    alert('No hay evaluaciones para exportar. Aplique filtros diferentes o agregue evaluaciones.');
+                    return;
+                }
+
+                // Show loading message
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                loadingDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <span>Generando archivo Excel...</span>
+                    </div>
+                `;
+                document.body.appendChild(loadingDiv);
+
+                // Prepare data for Excel export
+                const cargoNames = {
+                    'analista-calidad': 'Analista de Calidad y Capacitación',
+                    'supervisor-operativo': 'Supervisor Operativo',
+                    'supervisor-calidad': 'Supervisor de Calidad y Capacitación',
+                    'coordinador-operativo': 'Coordinador Operativo',
+                    'coordinador-calidad': 'Coordinador de Calidad y Capacitación'
+                };
+
+                // Create main evaluations sheet data
+                const evaluationsData = filteredEvaluations.map(evaluation => {
+                    const skillsScore = calculateSkillsScore(evaluation);
+                    const operationsScore = calculateOperationsScore(evaluation);
+                    const badgesList = evaluation.badges ? evaluation.badges.join(', ') : 'Ninguna';
+                    
+                    return {
+                        'ID Evaluación': evaluation.id,
+                        'Nombre del Empleado': evaluation.employeeName,
+                        'Cargo': cargoNames[evaluation.cargo] || evaluation.cargo,
+                        'Fecha de Evaluación': evaluation.evaluationPeriod,
+                        'Evaluador': evaluation.evaluator,
+                        'Puntuación Habilidades (%)': skillsScore.toFixed(1),
+                        'Puntuación Operatividad (%)': operationsScore.toFixed(1),
+                        'Puntuación Total (%)': evaluation.totalScore.replace('%', ''),
+                        'Nivel de Desempeño': evaluation.performanceLevel,
+                        'Insignias Obtenidas': badgesList,
+                        'Cantidad de Insignias': evaluation.badges ? evaluation.badges.length : 0,
+                        'Nivel de Logros': evaluation.achievementLevel || 'No asignado',
+                        'Puntos de Logros': evaluation.achievementPoints || 0,
+                        'Fecha de Registro': new Date(evaluation.timestamp).toLocaleDateString('es-ES')
+                    };
+                });
+
+                // Create detailed skills breakdown sheet
+                const skillsBreakdownData = [];
+                filteredEvaluations.forEach(evaluation => {
+                    if (evaluation.skills) {
+                        Object.entries(evaluation.skills).forEach(([skill, rating]) => {
+                            const ratingText = rating === 3 ? 'Posee la cualidad' : 
+                                             rating === 2 ? 'Posee con oportunidad de mejora' : 'No la posee';
+                            skillsBreakdownData.push({
+                                'Empleado': evaluation.employeeName,
+                                'Cargo': cargoNames[evaluation.cargo] || evaluation.cargo,
+                                'Fecha': evaluation.evaluationPeriod,
+                                'Habilidad': skill,
+                                'Puntuación': rating,
+                                'Descripción': ratingText
+                            });
+                        });
+                    }
+                });
+
+                // Create operations breakdown sheet
+                const operationsBreakdownData = [];
+                filteredEvaluations.forEach(evaluation => {
+                    if (evaluation.operations) {
+                        Object.entries(evaluation.operations).forEach(([operation, rating]) => {
+                            const ratingText = rating === 3 ? 'Posee la cualidad' : 
+                                             rating === 2 ? 'Posee con oportunidad de mejora' : 'No la posee';
+                            operationsBreakdownData.push({
+                                'Empleado': evaluation.employeeName,
+                                'Cargo': cargoNames[evaluation.cargo] || evaluation.cargo,
+                                'Fecha': evaluation.evaluationPeriod,
+                                'Aspecto Operativo': operation,
+                                'Puntuación': rating,
+                                'Descripción': ratingText
+                            });
+                        });
+                    }
+                });
+
+                // Create statistics summary sheet
+                const totalEvals = filteredEvaluations.length;
+                const averageScore = totalEvals > 0 ? 
+                    Math.round(filteredEvaluations.reduce((sum, eval) => sum + parseInt(eval.totalScore.replace('%', '')), 0) / totalEvals) : 0;
+                const totalBadges = filteredEvaluations.reduce((sum, eval) => sum + (eval.badges ? eval.badges.length : 0), 0);
+                
+                const performanceCounts = {
+                    'Desempeño Sobresaliente': 0,
+                    'Desempeño Bueno': 0,
+                    'Desempeño Regular': 0,
+                    'Desempeño Deficiente': 0
+                };
+                
+                filteredEvaluations.forEach(evaluation => {
+                    if (performanceCounts.hasOwnProperty(evaluation.performanceLevel)) {
+                        performanceCounts[evaluation.performanceLevel]++;
+                    }
+                });
+
+                const statisticsData = [
+                    { 'Métrica': 'Total de Evaluaciones', 'Valor': totalEvals },
+                    { 'Métrica': 'Promedio General (%)', 'Valor': averageScore },
+                    { 'Métrica': 'Total de Insignias', 'Valor': totalBadges },
+                    { 'Métrica': 'Desempeño Sobresaliente', 'Valor': performanceCounts['Desempeño Sobresaliente'] },
+                    { 'Métrica': 'Desempeño Bueno', 'Valor': performanceCounts['Desempeño Bueno'] },
+                    { 'Métrica': 'Desempeño Regular', 'Valor': performanceCounts['Desempeño Regular'] },
+                    { 'Métrica': 'Desempeño Deficiente', 'Valor': performanceCounts['Desempeño Deficiente'] },
+                    { 'Métrica': 'Fecha de Exportación', 'Valor': new Date().toLocaleDateString('es-ES') }
+                ];
+
+                // Create workbook with multiple sheets
+                const workbook = XLSX.utils.book_new();
+                
+                // Add main evaluations sheet
+                const evaluationsSheet = XLSX.utils.json_to_sheet(evaluationsData);
+                XLSX.utils.book_append_sheet(workbook, evaluationsSheet, 'Evaluaciones');
+                
+                // Add skills breakdown sheet
+                if (skillsBreakdownData.length > 0) {
+                    const skillsSheet = XLSX.utils.json_to_sheet(skillsBreakdownData);
+                    XLSX.utils.book_append_sheet(workbook, skillsSheet, 'Detalle Habilidades');
+                }
+                
+                // Add operations breakdown sheet
+                if (operationsBreakdownData.length > 0) {
+                    const operationsSheet = XLSX.utils.json_to_sheet(operationsBreakdownData);
+                    XLSX.utils.book_append_sheet(workbook, operationsSheet, 'Detalle Operatividad');
+                }
+                
+                // Add statistics sheet
+                const statisticsSheet = XLSX.utils.json_to_sheet(statisticsData);
+                XLSX.utils.book_append_sheet(workbook, statisticsSheet, 'Estadísticas');
+
+                // Generate filename
+                const currentDate = new Date().toISOString().split('T')[0];
+                const filename = `Evaluaciones_Desempeño_${currentDate}.xlsx`;
+                
+                // Write and download the file
+                setTimeout(() => {
+                    XLSX.writeFile(workbook, filename);
+                    
+                    // Remove loading message
+                    loadingDiv.remove();
+                    
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    successDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2">📊</span>
+                            <div>
+                                <div class="font-semibold">Excel Exportado Exitosamente</div>
+                                <div class="text-sm">${totalEvals} evaluaciones • 4 hojas de cálculo</div>
+                                <div class="text-xs mt-1">${filename}</div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+                    
+                    setTimeout(() => {
+                        successDiv.remove();
+                    }, 5000);
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error exporting to Excel:', error);
+                
+                // Remove loading message if it exists
+                const loadingDiv = document.querySelector('.fixed.top-4.right-4.bg-blue-500');
+                if (loadingDiv) loadingDiv.remove();
+                
+                alert('Error al exportar a Excel: ' + error.message);
+            }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d1d3bc646d0092',t:'MTc1NDg1MzM4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

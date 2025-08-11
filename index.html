@@ -22,16 +22,59 @@
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        @keyframes floatReverse {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(20px) rotate(-180deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen py-8">
     <!-- Login View (Initial View) -->
-    <div id="loginView" class="min-h-screen flex items-center justify-center px-4">
-        <div class="max-w-md w-full space-y-8">
+    <div id="loginView" class="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+        <!-- 3D Corporate Blue Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
+            <!-- Animated geometric shapes -->
+            <div class="absolute top-0 left-0 w-full h-full">
+                <!-- Large floating cubes -->
+                <div class="absolute top-20 left-10 w-32 h-32 bg-blue-600 opacity-10 transform rotate-45 animate-pulse"></div>
+                <div class="absolute top-40 right-20 w-24 h-24 bg-indigo-500 opacity-15 transform rotate-12 animate-bounce" style="animation-duration: 3s;"></div>
+                <div class="absolute bottom-32 left-1/4 w-20 h-20 bg-blue-400 opacity-20 transform -rotate-12 animate-pulse" style="animation-delay: 1s;"></div>
+                <div class="absolute bottom-20 right-1/3 w-28 h-28 bg-indigo-600 opacity-10 transform rotate-45 animate-bounce" style="animation-duration: 4s; animation-delay: 2s;"></div>
+                
+                <!-- Hexagonal patterns -->
+                <div class="absolute top-1/4 left-1/2 transform -translate-x-1/2">
+                    <div class="w-16 h-16 bg-blue-500 opacity-20 transform rotate-30" style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); animation: float 6s ease-in-out infinite;"></div>
+                </div>
+                <div class="absolute bottom-1/4 right-1/4">
+                    <div class="w-12 h-12 bg-indigo-400 opacity-25 transform rotate-45" style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); animation: float 8s ease-in-out infinite reverse;"></div>
+                </div>
+                
+                <!-- Gradient orbs -->
+                <div class="absolute top-1/3 right-10 w-40 h-40 bg-gradient-to-r from-blue-400 to-indigo-500 opacity-20 rounded-full blur-xl animate-pulse" style="animation-duration: 4s;"></div>
+                <div class="absolute bottom-1/3 left-16 w-32 h-32 bg-gradient-to-r from-indigo-400 to-blue-500 opacity-15 rounded-full blur-lg animate-pulse" style="animation-duration: 5s; animation-delay: 1.5s;"></div>
+                
+                <!-- Grid pattern overlay -->
+                <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
+                
+                <!-- Diagonal lines -->
+                <div class="absolute top-0 left-0 w-full h-full">
+                    <div class="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-blue-400 to-transparent opacity-20 transform rotate-12"></div>
+                    <div class="absolute top-0 right-1/3 w-px h-full bg-gradient-to-b from-transparent via-indigo-400 to-transparent opacity-15 transform -rotate-12"></div>
+                </div>
+            </div>
+            
+            <!-- Subtle noise texture overlay -->
+            <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%);"></div>
+        </div>
+        <div class="max-w-md w-full space-y-8 relative z-10">
             <!-- Login Card -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-white rounded-lg shadow-2xl overflow-hidden backdrop-blur-sm bg-opacity-95 transform perspective-1000 hover:scale-105 transition-all duration-300" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1); transform-style: preserve-3d; transform: rotateX(5deg) rotateY(-5deg);">
                 <!-- Header -->
-                <div class="text-white p-8 text-center" style="background-color: #01053c;">
+                <div class="text-white p-8 text-center relative" style="background-color: #01053c; transform: translateZ(25px); background-image: linear-gradient(135deg, #01053c 0%, #1e3a8a 100%);">
                     <div class="flex justify-center mb-4">
                         <!-- Minimalist Evaluation Clipboard Icon -->
                         <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -45,7 +88,7 @@
                 </div>
                 
                 <!-- Login Form -->
-                <div class="p-8">
+                <div class="p-8 relative" style="transform: translateZ(20px);">
                     <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-6">
                         <div>
                             <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
@@ -56,7 +99,8 @@
                                 id="username" 
                                 name="username"
                                 required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 transform hover:translateZ-10"
+                                style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transform: translateZ(10px);"
                                 placeholder="Ingrese su usuario"
                                 autocomplete="username"
                             >
@@ -72,7 +116,8 @@
                                     id="password" 
                                     name="password"
                                     required
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors pr-12"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 transform hover:translateZ-10 pr-12"
+                                    style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transform: translateZ(10px);"
                                     placeholder="Ingrese su contraseña"
                                     autocomplete="current-password"
                                 >
@@ -93,8 +138,8 @@
                         
                         <button 
                             type="submit" 
-                            class="w-full text-white py-3 px-4 rounded-lg font-medium transition-colors hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                            style="background-color: #01053c;"
+                            class="w-full text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 transform hover:translateZ-10 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            style="background-color: #01053c; box-shadow: 0 10px 15px -3px rgba(1, 5, 60, 0.3), 0 4px 6px -2px rgba(1, 5, 60, 0.1); transform: translateZ(15px);"
                             id="loginButton"
                         >
                             <span id="loginButtonText">🚀 Acceder al Sistema</span>
@@ -106,21 +151,24 @@
                     </form>
                     
                     <!-- Demo Credentials Info -->
-                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg transform transition-all duration-300" style="box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06); transform: translateZ(8px);">
                         <h3 class="text-sm font-semibold text-blue-800 mb-2">📋 Credenciales de Acceso</h3>
                         <div class="text-sm text-blue-700 space-y-1">
-                            <div><strong>Usuario:</strong> Admin</div>
+                            <div><strong>Usuarios:</strong> Admin, CalCap, OP</div>
                             <div><strong>Contraseña:</strong> Prc12345</div>
                         </div>
-                        <p class="text-xs text-blue-600 mt-2">Sistema de Evaluación de Desempeño Laboral</p>
+                        <div class="text-xs text-blue-600 mt-2 space-y-1">
+                            <div>• <strong>Admin:</strong> Acceso completo + edición/eliminación</div>
+                            <div>• <strong>CalCap/OP:</strong> Crear evaluaciones</div>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- Footer -->
-            <div class="text-center text-gray-500 text-sm">
-                <p>© 2024 Sistema PRC333 - Evaluaciones de Desempeño</p>
-                <p class="mt-1">Gestión de Recursos Humanos</p>
+            <div class="text-center text-white text-sm relative z-10">
+                <p class="drop-shadow-lg">© 2024 Sistema PRC333 - Evaluaciones de Desempeño</p>
+                <p class="mt-1 drop-shadow-lg opacity-90">Gestión de Recursos Humanos</p>
             </div>
         </div>
     </div>
@@ -135,8 +183,8 @@
                     <p class="text-blue-100">Sistema de Gestión de Desempeño Laboral - PRC333</p>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button onclick="showEvaluationForm()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center">
-                        <span class="mr-2">➕</span>
+                    <button onclick="showEvaluationForm()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center text-sm">
+                        <span class="mr-1">➕</span>
                         Nueva Evaluación
                     </button>
                     <button onclick="showLogin()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center text-sm">
@@ -323,7 +371,7 @@
             
             <!-- Employee Info -->
             <div class="p-6 bg-gray-50 border-b">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Evaluado</label>
                         <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nombre completo">
@@ -340,8 +388,12 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Período de Evaluación</label>
-                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="evaluationPeriod">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Período de Evaluación - Desde</label>
+                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="evaluationPeriodFrom">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Período de Evaluación - Hasta</label>
+                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="evaluationPeriodTo">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Evaluador</label>
@@ -996,11 +1048,12 @@
 
         function generateReport() {
             const employeeName = document.querySelector('input[placeholder="Nombre completo"]').value;
-            const evaluationPeriod = document.getElementById('evaluationPeriod').value;
+            const evaluationPeriodFrom = document.getElementById('evaluationPeriodFrom').value;
+            const evaluationPeriodTo = document.getElementById('evaluationPeriodTo').value;
             const evaluator = document.querySelector('input[placeholder="Nombre del supervisor"]').value;
             const cargo = document.getElementById('cargoSelect').value;
             
-            if (!employeeName || !evaluationPeriod || !evaluator || !cargo) {
+            if (!employeeName || !evaluationPeriodFrom || !evaluationPeriodTo || !evaluator || !cargo) {
                 alert('Por favor complete toda la información básica del empleado antes de generar el reporte.');
                 return;
             }
@@ -1014,9 +1067,11 @@
             // Collect all evaluation data
             const evaluationData = {
                 employeeName: employeeName,
-                evaluationPeriod: evaluationPeriod,
+                evaluationPeriodFrom: evaluationPeriodFrom,
+                evaluationPeriodTo: evaluationPeriodTo,
                 evaluator: evaluator,
                 cargo: cargo,
+                createdBy: currentUser ? currentUser.username : 'Unknown',
                 timestamp: new Date().toISOString(),
                 skills: {},
                 operations: {},
@@ -1054,17 +1109,145 @@
                 }
             });
             
-            // Save to localStorage (simulating database) and clear form
-            saveToDatabase(evaluationData, true);
+            // Save to API database
+            saveToAPIDatabase(evaluationData, true);
         }
         
-        function saveToDatabase(data, shouldClearForm = false) {
+        // API Database functions
+        async function saveToAPIDatabase(data, shouldClearForm = false) {
+            try {
+                // Show loading message
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                loadingDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <span>Guardando en base de datos...</span>
+                    </div>
+                `;
+                document.body.appendChild(loadingDiv);
+                
+                // Add unique ID and flatten data for API
+                data.id = Date.now().toString();
+                
+                // Flatten the data structure for SheetDB
+                const flattenedData = {
+                    id: data.id,
+                    employeeName: data.employeeName,
+                    evaluationPeriodFrom: data.evaluationPeriodFrom,
+                    evaluationPeriodTo: data.evaluationPeriodTo,
+                    evaluator: data.evaluator,
+                    cargo: data.cargo,
+                    createdBy: data.createdBy,
+                    timestamp: data.timestamp,
+                    totalScore: data.totalScore,
+                    performanceLevel: data.performanceLevel,
+                    badges: JSON.stringify(data.badges),
+                    achievementLevel: data.achievementLevel || '',
+                    achievementPoints: data.achievementPoints || 0,
+                    skills: JSON.stringify(data.skills),
+                    operations: JSON.stringify(data.operations),
+                    comments: JSON.stringify(data.comments)
+                };
+                
+                // Send to SheetDB API
+                const response = await fetch('https://sheetdb.io/api/v1/y605fdzbz5fir', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        data: [flattenedData]
+                    })
+                });
+                
+                loadingDiv.remove();
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    successDiv.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="mr-2">✅</span>
+                                <div>
+                                    <div class="font-semibold">Evaluación Guardada en Base de Datos</div>
+                                    <div class="text-sm">ID: ${data.id} • ${data.employeeName}</div>
+                                    <div class="text-xs">Sincronizado con SheetDB</div>
+                                </div>
+                            </div>
+                            <button onclick="loadDashboardFromAPI(); showDashboard(); this.parentElement.parentElement.remove();" class="ml-4 bg-green-700 hover:bg-green-800 px-3 py-1 rounded text-sm">
+                                Ver Dashboard
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+                    
+                    // Clear form if requested
+                    if (shouldClearForm) {
+                        setTimeout(() => {
+                            clearFormAfterSave();
+                        }, 1000);
+                    }
+                    
+                    // Remove success message after 8 seconds
+                    setTimeout(() => {
+                        if (successDiv.parentElement) {
+                            successDiv.remove();
+                        }
+                    }, 8000);
+                    
+                    console.log('Evaluación guardada en API:', result);
+                    
+                } else {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+            } catch (error) {
+                // Remove loading message if it exists
+                const loadingDiv = document.querySelector('.fixed.top-4.right-4.bg-blue-500');
+                if (loadingDiv) loadingDiv.remove();
+                
+                console.error('API save error:', error);
+                
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                errorDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="mr-2">❌</span>
+                        <div>
+                            <div class="font-semibold">Error al Guardar</div>
+                            <div class="text-sm">Guardando localmente como respaldo</div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(errorDiv);
+                
+                // Fallback to localStorage
+                saveToLocalStorage(data, shouldClearForm);
+                
+                setTimeout(() => {
+                    if (errorDiv.parentElement) {
+                        errorDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+        
+        function saveToLocalStorage(data, shouldClearForm = false) {
             try {
                 // Get existing evaluations from localStorage
                 let evaluations = JSON.parse(localStorage.getItem('performanceEvaluations') || '[]');
                 
-                // Add new evaluation with unique ID
-                data.id = Date.now().toString();
+                // Add new evaluation with unique ID if not already set
+                if (!data.id) {
+                    data.id = Date.now().toString();
+                }
                 evaluations.push(data);
                 
                 // Save back to localStorage
@@ -1072,17 +1255,18 @@
                 
                 // Show success message with option to go to dashboard
                 const successDiv = document.createElement('div');
-                successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                successDiv.className = 'fixed top-4 right-4 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
                 successDiv.innerHTML = `
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            <span class="mr-2">✅</span>
+                            <span class="mr-2">💾</span>
                             <div>
-                                <div class="font-semibold">Evaluación Guardada en Base de Datos</div>
+                                <div class="font-semibold">Evaluación Guardada Localmente</div>
                                 <div class="text-sm">ID: ${data.id} • ${data.employeeName}</div>
+                                <div class="text-xs">Respaldo local activo</div>
                             </div>
                         </div>
-                        <button onclick="showDashboard(); this.parentElement.parentElement.remove();" class="ml-4 bg-green-700 hover:bg-green-800 px-3 py-1 rounded text-sm">
+                        <button onclick="showDashboard(); this.parentElement.parentElement.remove();" class="ml-4 bg-orange-700 hover:bg-orange-800 px-3 py-1 rounded text-sm">
                             Ver Dashboard
                         </button>
                     </div>
@@ -1103,11 +1287,11 @@
                     }
                 }, 8000);
                 
-                console.log('Evaluación guardada en base de datos:', data);
+                console.log('Evaluación guardada localmente:', data);
                 
             } catch (error) {
-                alert('Error al guardar la evaluación en la base de datos: ' + error.message);
-                console.error('Database save error:', error);
+                alert('Error al guardar la evaluación: ' + error.message);
+                console.error('Local save error:', error);
             }
         }
 
@@ -1223,11 +1407,12 @@
 
         function printEvaluation() {
             const employeeName = document.querySelector('input[placeholder="Nombre completo"]').value;
-            const evaluationPeriod = document.getElementById('evaluationPeriod').value;
+            const evaluationPeriodFrom = document.getElementById('evaluationPeriodFrom').value;
+            const evaluationPeriodTo = document.getElementById('evaluationPeriodTo').value;
             const evaluator = document.querySelector('input[placeholder="Nombre del supervisor"]').value;
             const cargo = document.getElementById('cargoSelect').value;
             
-            if (!employeeName || !evaluationPeriod || !evaluator || !cargo) {
+            if (!employeeName || !evaluationPeriodFrom || !evaluationPeriodTo || !evaluator || !cargo) {
                 alert('Por favor complete toda la información básica del empleado antes de exportar a PDF.');
                 return;
             }
@@ -1407,6 +1592,9 @@
             document.getElementById('achievementPoints').textContent = selectedPoints;
         }
 
+        // Global user session
+        let currentUser = null;
+        
         // Login functionality
         function handleLogin(event) {
             event.preventDefault();
@@ -1428,10 +1616,17 @@
             
             // Simulate authentication delay
             setTimeout(() => {
-                // Check credentials
-                if (username === 'Admin' && password === 'Prc12345') {
+                // Check credentials for different user roles
+                if ((username === 'Admin' || username === 'CalCap' || username === 'OP') && password === 'Prc12345') {
+                    // Set current user session
+                    currentUser = {
+                        username: username,
+                        role: username,
+                        loginTime: new Date().toISOString()
+                    };
+                    
                     // Successful login
-                    showSuccessLogin();
+                    showSuccessLogin(username);
                     setTimeout(() => {
                         showDashboard();
                     }, 1500);
@@ -1447,7 +1642,13 @@
             }, 1000);
         }
         
-        function showSuccessLogin() {
+        function showSuccessLogin(username) {
+            const roleNames = {
+                'Admin': 'Administrador',
+                'CalCap': 'Calidad y Capacitación',
+                'OP': 'Operativo'
+            };
+            
             const successDiv = document.createElement('div');
             successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
             successDiv.innerHTML = `
@@ -1455,7 +1656,8 @@
                     <span class="mr-2">✅</span>
                     <div>
                         <div class="font-semibold">Acceso Autorizado</div>
-                        <div class="text-sm">Bienvenido al Sistema PRC333</div>
+                        <div class="text-sm">Bienvenido ${username} - ${roleNames[username] || username}</div>
+                        <div class="text-xs">Sistema PRC333</div>
                     </div>
                 </div>
             `;
@@ -1522,6 +1724,116 @@
         let allEvaluations = [];
 
         function loadDashboardData() {
+            // Try to load from API first, fallback to localStorage
+            loadDashboardFromAPI();
+        }
+        
+        async function loadDashboardFromAPI() {
+            try {
+                // Show loading indicator
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'fixed top-4 left-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                loadingDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <span class="text-sm">Cargando datos...</span>
+                    </div>
+                `;
+                document.body.appendChild(loadingDiv);
+                
+                // Fetch data from SheetDB API
+                const response = await fetch('https://sheetdb.io/api/v1/y605fdzbz5fir');
+                
+                if (response.ok) {
+                    const apiData = await response.json();
+                    
+                    // Transform API data back to our format
+                    allEvaluations = apiData.map(item => {
+                        try {
+                            return {
+                                id: item.id,
+                                employeeName: item.employeeName,
+                                evaluationPeriodFrom: item.evaluationPeriodFrom,
+                                evaluationPeriodTo: item.evaluationPeriodTo,
+                                evaluationPeriod: item.evaluationPeriodFrom, // For compatibility
+                                evaluator: item.evaluator,
+                                cargo: item.cargo,
+                                createdBy: item.createdBy,
+                                timestamp: item.timestamp,
+                                totalScore: item.totalScore,
+                                performanceLevel: item.performanceLevel,
+                                badges: JSON.parse(item.badges || '[]'),
+                                achievementLevel: item.achievementLevel,
+                                achievementPoints: parseInt(item.achievementPoints) || 0,
+                                skills: JSON.parse(item.skills || '{}'),
+                                operations: JSON.parse(item.operations || '{}'),
+                                comments: JSON.parse(item.comments || '{}')
+                            };
+                        } catch (parseError) {
+                            console.error('Error parsing evaluation data:', parseError, item);
+                            return null;
+                        }
+                    }).filter(item => item !== null);
+                    
+                    // Update localStorage with API data
+                    localStorage.setItem('performanceEvaluations', JSON.stringify(allEvaluations));
+                    
+                    loadingDiv.remove();
+                    
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'fixed top-4 left-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    successDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2">🔄</span>
+                            <span class="text-sm">Datos sincronizados (${allEvaluations.length} evaluaciones)</span>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+                    
+                    setTimeout(() => {
+                        if (successDiv.parentElement) {
+                            successDiv.remove();
+                        }
+                    }, 3000);
+                    
+                } else {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Error loading from API:', error);
+                
+                // Remove loading indicator
+                const loadingDiv = document.querySelector('.fixed.top-4.left-4.bg-blue-500');
+                if (loadingDiv) loadingDiv.remove();
+                
+                // Fallback to localStorage
+                loadDashboardFromLocalStorage();
+                
+                // Show fallback message
+                const fallbackDiv = document.createElement('div');
+                fallbackDiv.className = 'fixed top-4 left-4 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                fallbackDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="mr-2">💾</span>
+                        <span class="text-sm">Usando datos locales</span>
+                    </div>
+                `;
+                document.body.appendChild(fallbackDiv);
+                
+                setTimeout(() => {
+                    if (fallbackDiv.parentElement) {
+                        fallbackDiv.remove();
+                    }
+                }, 3000);
+            }
+            
+            filteredEvaluations = [...allEvaluations];
+            updateDashboard();
+        }
+        
+        function loadDashboardFromLocalStorage() {
             try {
                 // Load evaluations from localStorage
                 allEvaluations = JSON.parse(localStorage.getItem('performanceEvaluations') || '[]');
@@ -1842,9 +2154,19 @@
                             </span>
                         </td>
                         <td class="px-4 py-3">
-                            <button onclick="viewEvaluationDetails('${evaluation.id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                Ver Detalles
-                            </button>
+                            <div class="flex space-x-2">
+                                <button onclick="viewEvaluationDetails('${evaluation.id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Ver Detalles
+                                </button>
+                                ${currentUser && currentUser.role === 'Admin' ? `
+                                    <button onclick="editEvaluation('${evaluation.id}')" class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                        Editar
+                                    </button>
+                                    <button onclick="deleteEvaluation('${evaluation.id}')" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                        Eliminar
+                                    </button>
+                                ` : ''}
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -1908,7 +2230,207 @@
             const evaluation = allEvaluations.find(eval => eval.id === evaluationId);
             if (!evaluation) return;
             
-            alert(`Detalles de la evaluación:\n\nEmpleado: ${evaluation.employeeName}\nEvaluador: ${evaluation.evaluator}\nFecha: ${evaluation.evaluationPeriod}\nPuntuación Total: ${evaluation.totalScore}\nNivel: ${evaluation.performanceLevel}\n\nInsignias obtenidas: ${evaluation.badges ? evaluation.badges.length : 0}\nPuntos de logros: ${evaluation.achievementPoints || 0}`);
+            const periodText = evaluation.evaluationPeriodFrom && evaluation.evaluationPeriodTo ? 
+                `${evaluation.evaluationPeriodFrom} al ${evaluation.evaluationPeriodTo}` : 
+                evaluation.evaluationPeriod || 'No especificado';
+            
+            alert(`Detalles de la evaluación:\n\nEmpleado: ${evaluation.employeeName}\nEvaluador: ${evaluation.evaluator}\nPeríodo: ${periodText}\nCreado por: ${evaluation.createdBy || 'No especificado'}\nPuntuación Total: ${evaluation.totalScore}\nNivel: ${evaluation.performanceLevel}\n\nInsignias obtenidas: ${evaluation.badges ? evaluation.badges.length : 0}\nPuntos de logros: ${evaluation.achievementPoints || 0}`);
+        }
+        
+        function editEvaluation(evaluationId) {
+            if (!currentUser || currentUser.role !== 'Admin') {
+                alert('Solo los administradores pueden editar evaluaciones.');
+                return;
+            }
+            
+            const evaluation = allEvaluations.find(eval => eval.id === evaluationId);
+            if (!evaluation) return;
+            
+            // For now, show a simple edit dialog
+            const newEmployeeName = prompt('Nombre del empleado:', evaluation.employeeName);
+            if (newEmployeeName === null) return; // User cancelled
+            
+            const newEvaluator = prompt('Evaluador:', evaluation.evaluator);
+            if (newEvaluator === null) return;
+            
+            // Update the evaluation
+            evaluation.employeeName = newEmployeeName;
+            evaluation.evaluator = newEvaluator;
+            evaluation.lastModified = new Date().toISOString();
+            evaluation.modifiedBy = currentUser.username;
+            
+            // Update in API and localStorage
+            updateEvaluationInAPI(evaluation);
+        }
+        
+        function deleteEvaluation(evaluationId) {
+            if (!currentUser || currentUser.role !== 'Admin') {
+                alert('Solo los administradores pueden eliminar evaluaciones.');
+                return;
+            }
+            
+            const evaluation = allEvaluations.find(eval => eval.id === evaluationId);
+            if (!evaluation) return;
+            
+            if (confirm(`¿Está seguro de que desea eliminar la evaluación de ${evaluation.employeeName}?\n\nEsta acción no se puede deshacer.`)) {
+                deleteEvaluationFromAPI(evaluationId);
+            }
+        }
+        
+        async function updateEvaluationInAPI(evaluation) {
+            try {
+                // Show loading message
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                loadingDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <span class="text-sm">Actualizando...</span>
+                    </div>
+                `;
+                document.body.appendChild(loadingDiv);
+                
+                // Flatten the data for API
+                const flattenedData = {
+                    id: evaluation.id,
+                    employeeName: evaluation.employeeName,
+                    evaluationPeriodFrom: evaluation.evaluationPeriodFrom,
+                    evaluationPeriodTo: evaluation.evaluationPeriodTo,
+                    evaluator: evaluation.evaluator,
+                    cargo: evaluation.cargo,
+                    createdBy: evaluation.createdBy,
+                    timestamp: evaluation.timestamp,
+                    totalScore: evaluation.totalScore,
+                    performanceLevel: evaluation.performanceLevel,
+                    badges: JSON.stringify(evaluation.badges || []),
+                    achievementLevel: evaluation.achievementLevel || '',
+                    achievementPoints: evaluation.achievementPoints || 0,
+                    skills: JSON.stringify(evaluation.skills || {}),
+                    operations: JSON.stringify(evaluation.operations || {}),
+                    comments: JSON.stringify(evaluation.comments || {}),
+                    lastModified: evaluation.lastModified,
+                    modifiedBy: evaluation.modifiedBy
+                };
+                
+                // Update in SheetDB API
+                const response = await fetch(`https://sheetdb.io/api/v1/y605fdzbz5fir/id/${evaluation.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        data: flattenedData
+                    })
+                });
+                
+                loadingDiv.remove();
+                
+                if (response.ok) {
+                    // Update localStorage
+                    const index = allEvaluations.findIndex(eval => eval.id === evaluation.id);
+                    if (index !== -1) {
+                        allEvaluations[index] = evaluation;
+                        localStorage.setItem('performanceEvaluations', JSON.stringify(allEvaluations));
+                    }
+                    
+                    // Refresh dashboard
+                    filteredEvaluations = [...allEvaluations];
+                    updateDashboard();
+                    
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    successDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2">✅</span>
+                            <span class="text-sm">Evaluación actualizada</span>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+                    
+                    setTimeout(() => {
+                        if (successDiv.parentElement) {
+                            successDiv.remove();
+                        }
+                    }, 3000);
+                    
+                } else {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Error updating evaluation:', error);
+                
+                // Remove loading message
+                const loadingDiv = document.querySelector('.fixed.top-4.right-4.bg-blue-500');
+                if (loadingDiv) loadingDiv.remove();
+                
+                alert('Error al actualizar la evaluación en la base de datos.');
+            }
+        }
+        
+        async function deleteEvaluationFromAPI(evaluationId) {
+            try {
+                // Show loading message
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                loadingDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <span class="text-sm">Eliminando...</span>
+                    </div>
+                `;
+                document.body.appendChild(loadingDiv);
+                
+                // Delete from SheetDB API
+                const response = await fetch(`https://sheetdb.io/api/v1/y605fdzbz5fir/id/${evaluationId}`, {
+                    method: 'DELETE'
+                });
+                
+                loadingDiv.remove();
+                
+                if (response.ok) {
+                    // Remove from local arrays
+                    allEvaluations = allEvaluations.filter(eval => eval.id !== evaluationId);
+                    filteredEvaluations = filteredEvaluations.filter(eval => eval.id !== evaluationId);
+                    
+                    // Update localStorage
+                    localStorage.setItem('performanceEvaluations', JSON.stringify(allEvaluations));
+                    
+                    // Refresh dashboard
+                    updateDashboard();
+                    
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    successDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2">🗑️</span>
+                            <span class="text-sm">Evaluación eliminada</span>
+                        </div>
+                    `;
+                    document.body.appendChild(successDiv);
+                    
+                    setTimeout(() => {
+                        if (successDiv.parentElement) {
+                            successDiv.remove();
+                        }
+                    }, 3000);
+                    
+                } else {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.error('Error deleting evaluation:', error);
+                
+                // Remove loading message
+                const loadingDiv = document.querySelector('.fixed.top-4.right-4.bg-red-500');
+                if (loadingDiv) loadingDiv.remove();
+                
+                alert('Error al eliminar la evaluación de la base de datos.');
+            }
         }
 
         function exportDashboardData() {
@@ -2095,5 +2617,5 @@
             }
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d1d3bc646d0092',t:'MTc1NDg1MzM4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d38d992140f535',t:'MTc1NDg3MTQ3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
